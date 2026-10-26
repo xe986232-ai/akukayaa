@@ -1,0 +1,49 @@
+/* Playlist canvas: gaya flat, hanya lima warna dasar + warna channel (lihat THEMES di playlist-canvas.ts) */
+.plc {
+  --bg-dark: #21272B; --row-black: #31373B; --row-white: #394046; --rule: #434C51; --light: #C7CEDA;
+  display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 240px;
+  background: var(--bg-dark); color: var(--light);
+  font: 12px/1.2 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.plc-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+  padding: 6px 8px; background: var(--bg-dark); border-bottom: 1px solid var(--rule);
+}
+.plc-bar label { display: inline-flex; align-items: center; gap: 4px; color: var(--light); }
+.plc-bar button, .plc-bar select, .plc-bar input[type="number"] {
+  height: 28px; padding: 0 10px; border: 0; border-radius: 0;
+  background: var(--row-white); color: var(--light); font: inherit;
+}
+.plc-bar input[type="number"] { width: 56px; padding: 0 6px; }
+.plc-bar select { padding: 0 4px; }
+.plc-bar button { cursor: pointer; }
+.plc-bar button:hover:not(:disabled) { background: var(--rule); }
+.plc-bar button.on { background: var(--light); color: var(--bg-dark); }
+.plc-bar button:disabled { opacity: .4; cursor: default; }
+.plc-bar input[type="range"] { width: 80px; accent-color: var(--light); }
+.plc-hint { flex: 1 1 100%; color: var(--rule); font-size: 11px; }
+
+.plc-stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; background: var(--bg-dark); }
+.plc-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+/* tombol kecil "+Clip" di titik tap (ukuran dan posisi diatur dari TS) */
+.plc-add {
+  position: absolute; display: none; align-items: center; justify-content: center;
+  padding: 0; border: 0; border-radius: 50%;
+  background: var(--light); color: var(--bg-dark); font: 700 11px system-ui, sans-serif;
+  cursor: pointer; transform-origin: center; animation: plc-pop-in .12s ease-out;
+}
+@keyframes plc-pop-in { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* popup menu (opsi region/clip) */
+.plc-pop {
+  position: absolute; display: none; flex-direction: column; min-width: 150px; max-height: 80%; overflow-y: auto;
+  background: var(--bg-dark); border: 1px solid var(--rule); z-index: 5;
+}
+.plc-pop button {
+  height: 34px; padding: 0 14px; border: 0; border-bottom: 1px solid var(--row-black);
+  background: var(--row-black); color: var(--light); font: inherit; text-align: left; cursor: pointer;
+}
+.plc-pop button:last-child { border-bottom: 0; }
+.plc-pop button:hover { background: var(--row-white); }

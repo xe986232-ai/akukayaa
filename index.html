@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#21272B">
+  <title>DAW Starter</title>
+</head>
+<body>
+  <div id="app">
+    <header class="top">
+      <strong class="brand">DAW Starter</strong>
+      <span class="saved" id="saved"></span>
+      <span class="spacer"></span>
+      <button id="btn-new">Baru</button>
+      <button id="btn-demo">Demo</button>
+      <button id="btn-export">Ekspor</button>
+      <button id="btn-import">Impor</button>
+      <input id="file-import" type="file" accept="application/json,.json" hidden>
+    </header>
+    <main class="main">
+      <section class="pl-host" id="pl-host"></section>
+      <section class="pr-panel" id="pr-panel" hidden>
+        <div class="pr-head">
+          <span class="pr-dot" id="pr-dot"></span>
+          <span class="pr-title" id="pr-title">Piano roll</span>
+          <span class="spacer"></span>
+          <button id="pr-close">Tutup</button>
+        </div>
+        <div class="pr-host" id="pr-host"></div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
