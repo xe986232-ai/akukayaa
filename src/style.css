@@ -2,21 +2,31 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg-dark); color: var(--light); overscroll-behavior: none;
   font: 13px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-#app { display: flex; flex-direction: column; height: 100dvh; }
-.top { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--bg-dark);
-  border-bottom: 2px solid var(--rule); }
-.top .brand { letter-spacing: .02em; }
-.top .saved { opacity: .45; font-size: 12px; }
-.spacer { flex: 1; }
+#app { display: flex; flex-direction: column; height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
 button { font: inherit; color: var(--light); background: var(--row-white); border: 0; border-radius: 0; padding: 7px 12px; cursor: pointer; }
 button:hover { background: var(--rule); }
+
+/* semua menu di atas disembunyikan: header aplikasi dan toolbar playlist / piano roll */
+.top, .plc-bar, .prc-bar { display: none !important; }
+
 .main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.pl-host { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.pl-host { flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
 .pl-host > .plc { flex: 1; height: auto; min-height: 0; }
-.pr-panel { flex: none; height: 48%; min-height: 220px; display: flex; flex-direction: column; border-top: 2px solid var(--rule); }
+.pr-panel { position: relative; flex: none; height: 48%; min-height: 0; display: flex; flex-direction: column; border-top: 2px solid var(--rule); }
 .pr-panel[hidden] { display: none; }
-.pr-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 4px 10px; background: var(--bg-dark); }
-.pr-dot { width: 10px; height: 10px; background: var(--light); }
-.pr-title { font-weight: 600; }
-.pr-host { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.pr-host { flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
 .pr-host > .prc { flex: 1; height: auto; min-height: 0; }
+
+/* tombol tutup piano roll: kotak kecil mengambang di pojok kanan atas */
+.pr-head { position: absolute; top: 4px; right: 4px; z-index: 6; display: block; padding: 0; background: none; }
+.pr-head .pr-dot, .pr-head .pr-title, .pr-head .spacer { display: none; }
+.pr-head button { width: 30px; height: 30px; padding: 0; font-size: 0; background: var(--light); color: var(--bg-dark); position: relative; }
+.pr-head button::before, .pr-head button::after { content: ""; position: absolute; left: 7px; right: 7px; top: 14px; height: 2px; background: var(--bg-dark); transform: rotate(45deg); }
+.pr-head button::after { transform: rotate(-45deg); }
+
+/* landscape: playlist di kiri, piano roll di kanan, keduanya memenuhi tinggi layar */
+@media (orientation: landscape) {
+  .main { flex-direction: row; }
+  .pr-panel { height: auto; width: 50%; border-top: 0; border-left: 2px solid var(--rule); }
+}
