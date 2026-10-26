@@ -136,3 +136,28 @@ fileIn.onchange = async () => {
 
 window.addEventListener('beforeunload', saveNow);
 document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
+
+/* ---------- Tombol landscape: layar penuh + kunci orientasi ---------- */
+const toastEl = $('toast');
+let toastTimer = 0;
+function toast(msg: string): void {
+  toastEl.textContent = msg; toastEl.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => { toastEl.hidden = true; }, 3500);
+}
+$('btn-landscape').onclick = async () => {
+  const orient = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> };
+  try {
+    if (document.fullscreenElement) {
+      orient.unlock?.();
+      await document.exitFullscreen();
+      return;
+    }
+    await document.documentElement.requestFullscreen();
+    if (orient.lock) await orient.lock('landscape');
+    else toast('Browser ini tidak bisa mengunci orientasi. Putar HP ke landscape.');
+  } catch {
+    toast('Tidak bisa mengunci layar. Aktifkan rotasi otomatis lalu putar HP ke landscape.');
+  }
+};
+document.addEventListener('fullscreenchange', () => { requestAnimationFrame(() => { playlist.resize(); pianoRoll?.resize(); }); });
