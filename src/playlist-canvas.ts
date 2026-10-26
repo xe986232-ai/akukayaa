@@ -948,12 +948,21 @@ export function mountPlaylist(host: HTMLElement, opts: PlaylistCanvasOpts = {}):
     const items: Array<[string, () => void]> = [
       ['Deselect', resetSel], ['Copy', copySel], ['Cut', cutSel]
     ];
+    const one = selClips();
+    if (one.length === 1) items.unshift(['Edit', () => editClip(one[0])]);
     if (clipboard) items.push(['Paste', pasteClip]);
     items.push(
       ['Duplicate', duplicateSel], ['Mute / Unmute', toggleMute], ['Split di playhead', splitAtPlayhead],
       ['Insert space', insertSpace], ['Delete space', deleteSpace], ['Trim selection', trimSel], ['Delete', deleteSel]
     );
     showPop(p.x, p.y, items);
+  }
+  function editClip(c: CL): void {   // buka editor (piano roll) untuk clip ini
+    opts.onOpenClip?.({ id: c.id, track: c.track, beat: c.beat, len: c.len, name: c.name, notes: c.notes.map(n => ({ ...n })), muted: c.muted });
+  }
+  function showClipPop(c: CL, q: Pt): void {   // popup klip: Edit, More... (seperti FL Studio Mobile)
+    const y = clipRectPx(c).y - cell * 1.1;
+    showPop(q.x, y, [['Edit', () => editClip(c)], ['More…', () => openMenu({ x: q.x, y })]]);
   }
   function showAdd(q: Pt, row: number): void {
     const t = S.tracks[row]; if (!t) return;
@@ -1045,7 +1054,7 @@ export function mountPlaylist(host: HTMLElement, opts: PlaylistCanvasOpts = {}):
         opts.onOpenClip?.({ id: hit.id, track: hit.track, beat: hit.beat, len: hit.len, name: hit.name, notes: hit.notes.map(n => ({ ...n })), muted: hit.muted });
         return;
       }
-      lastTap = { id: hit.id, t: now }; selectOnly(hit); tapBeat = beat; return;
+      lastTap = { id: hit.id, t: now }; selectOnly(hit); tapBeat = beat; showClipPop(hit, q); return;
     }
     lastTap = null;
     if (row < 0 || row >= S.tracks.length || beat < 0) { resetSel(); hideAdd(); return; }
