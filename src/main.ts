@@ -8,6 +8,15 @@ const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) 
 const plHost = $('pl-host'), prPanel = $('pr-panel'), prHost = $('pr-host');
 const prTitle = $('pr-title'), prDot = $('pr-dot'), savedEl = $('saved');
 
+/* ---------- Tema (terang / gelap) ---------- */
+type Theme = 'dark' | 'light';
+const THEME_KEY = 'daw-starter-theme';
+const APP_VARS: Record<Theme, Record<string, string>> = {
+  dark: { '--bg-dark': '#21272B', '--row-black': '#31373B', '--row-white': '#394046', '--rule': '#434C51', '--light': '#C7CEDA' },
+  light: { '--bg-dark': '#D2D2D2', '--row-black': '#C2C2C2', '--row-white': '#B4B4B4', '--rule': '#9A9A9A', '--light': '#222222' }
+};
+let theme: Theme = (() => { try { return localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark'; } catch { return 'dark'; } })();
+
 /* ---------- Penyimpanan ---------- */
 function loadSaved(): PlaylistState | null {
   try {
@@ -35,7 +44,7 @@ let editingId: number | null = null;
 
 const playlist: PlaylistCanvasHandle = mountPlaylist(plHost, {
   title: 'DAW Starter',
-  theme: 'dark',
+  theme,
   onChange: () => {
     scheduleSave();
     if (editingId != null && !playlist.getState().clips.some(c => c.id === editingId)) closeEditor();   // clip yang sedang diedit terhapus
@@ -46,6 +55,28 @@ const playlist: PlaylistCanvasHandle = mountPlaylist(plHost, {
 
 const saved = loadSaved();
 if (saved) playlist.setState(saved);
+
+// ganti tema: komponen punya dropdown tema sendiri (tersembunyi), jadi cukup set nilainya lalu picu event change
+function setComponentTheme(host: HTMLElement, t: Theme): void {
+  const sel = host.querySelector<HTMLSelectElement>('[data-r="theme"]');
+  if (sel) { sel.value = t; sel.dispatchEvent(new Event('change')); }
+}
+const themeBtns = document.querySelectorAll<HTMLButtonElement>('#settings [data-theme]');
+function applyTheme(t: Theme): void {
+  theme = t;
+  try { localStorage.setItem(THEME_KEY, t); } catch { /* abaikan */ }
+  for (const k in APP_VARS[t]) document.documentElement.style.setProperty(k, APP_VARS[t][k]);
+  setComponentTheme(plHost, t);
+  setComponentTheme(prHost, t);
+  themeBtns.forEach(b => b.classList.toggle('on', b.dataset.theme === t));
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', APP_VARS[t]['--bg-dark']);
+}
+themeBtns.forEach(b => { b.onclick = () => applyTheme(b.dataset.theme as Theme); });
+const settingsEl = $('settings');
+$('btn-settings').onclick = (e) => { e.stopPropagation(); settingsEl.hidden = !settingsEl.hidden; };
+settingsEl.addEventListener('pointerdown', e => e.stopPropagation());
+document.addEventListener('pointerdown', () => { settingsEl.hidden = true; });
+applyTheme(theme);
 
 // panjang piano roll = periode loop clip (2^k bar yang menampung note), minimal 1 bar; clip kosong dibuka selebar clipnya (maks 16 beat)
 function pianoLen(clip: PLClip): number {
@@ -69,7 +100,7 @@ function openEditor(clip: PLClip & { id: number }): void {
   prDot.style.background = color;
   if (!pianoRoll) {
     pianoRoll = mountPianoRoll(prHost, {
-      notes: notes as Required<PLNote>[], clipLen: pianoLen(clip), theme: 'dark', color, clipOffset: clip.beat,
+      notes: notes as Required<PLNote>[], clipLen: pianoLen(clip), theme, color, clipOffset: clip.beat,
       onChange: () => {
         if (editingId == null || !pianoRoll) return;
         playlist.setClipNotes(editingId, pianoRoll.getNotes());
